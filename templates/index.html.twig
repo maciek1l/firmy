@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+	<div class="container mt-2">
+		<h1>Wyszukiwanie</h1>
+		<form action="{{path('firmy')}}">
+			<div class="mb-3">
+				<label for="imie" class="form-label">Imię</label>
+				<input type="text" class="form-control" id="imie" name="imie">
+			</div>
+			<div class="mb-3">
+				<label for="nazwisko" class="form-label">Nazwisko</label>
+				<input type="text" class="form-control" id="nazwisko" name="nazwisko">
+			</div>
+			<div class="mb-3">
+				<label for="pkd" class="form-label">Kod PKD</label>
+				<input type="text" class="form-control" id="pkd" name="pkd">
+				<div class="form-text">W formacie 0123Z</div>
+			</div>
+			<div class="mb-3">
+				<label for="miasto" class="form-label">Miasto</label>
+				<input type="text" class="form-control" id="miasto" name="miasto">
+			</div>
+			<div class="mb-3">
+				<label for="dataod" class="form-label">Data rozpoczęcia działalności - zakres dolny</label>
+				<input type="date" class="form-control" id="dataod" name="dataod">
+			</div>
+			<div class="mb-3">
+				<label for="status" class="form-label">Status działalności</label>
+				<select type="date" class="form-control" id="status" name="status">
+					<option></option>
+					<option>AKTYWNY</option>
+					<option>WYKRESLONY</option>
+					<option>ZAWIESZONY</option>
+					<option>OCZEKUJE_NA_ROZPOCZECIE_DZIALANOSCI</option>
+					<option>WYLACZNIE_W_FORMIE_SPOLKI</option>
+				</select>
+			</div>
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+	</div>
+{% endblock %}

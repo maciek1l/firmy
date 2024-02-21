@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+	<h2>
+		Znaleziono
+		{{content.count}}
+		wyników ({{content.firmy|length}})
+	</h2>
+
+	<div id="firmy" class="m-2">
+		{% for firma in content.firmy %}
+			<div class="firma mb-3">
+				<h3>{{firma.nazwa}}</h3>
+				{% if firma.wlasciciel %}
+					<h4>Właściciel</h4>
+					<p>Imie:
+						{{firma.wlasciciel.imie is defined? firma.wlasciciel.imie : 'brak' }}</p>
+					<p>Nazwisko:
+						{{firma.wlasciciel.nazwisko is defined? firma.wlasciciel.nazwisko : 'brak' }}</p>
+					<p>NIP:
+						{{firma.wlasciciel.nip is defined? firma.wlasciciel.nip : 'brak' }}</p>
+					<p>Identyfikator REGON:
+						{{firma.wlasciciel.regon is defined? firma.wlasciciel.regon : 'brak' }}</p>
+				{% endif %}
+				{% if firma.adresDzialalnosci %}
+					<h4>Adres</h4>
+					<p>Kraj:
+						{{firma.adresDzialalnosci.kraj is defined? firma.adresDzialalnosci.kraj : 'brak' }}</p>
+					<p>Województwo:
+						{{firma.adresDzialalnosci.wojewodztwo is defined? firma.adresDzialalnosci.wojewodztwo : 'brak' }}</p>
+					<p>Powiat:
+						{{firma.adresDzialalnosci.powiat is defined? firma.adresDzialalnosci.powiat : 'brak' }}</p>
+					<p>Gmina:
+						{{firma.adresDzialalnosci.gmina is defined? firma.adresDzialalnosci.gmina : 'brak' }}</p>
+					<p>Miasto:
+						{{firma.adresDzialalnosci.miasto is defined? firma.adresDzialalnosci.miasto : 'brak' }}</p>
+					<p>Ulica:
+						{{firma.adresDzialalnosci.ulica is defined? firma.adresDzialalnosci.ulica : 'brak' }}</p>
+					<p>Budynek:
+						{{firma.adresDzialalnosci.budynek is defined? firma.adresDzialalnosci.budynek : 'brak' }}</p>
+				{% endif %}
+				<h3>Identyfikator rekordu</h3>
+				<p>{{firma.id}}</p>
+				<h3>Status działalności</h3>
+				<p>{{firma.status is defined? firma.status : 'brak' }}</p>
+				<h3>Data rozpoczęcia działalności</h3>
+				<p>{{firma.dataRozpoczecia is defined? firma.dataRozpoczecia : 'brak' }}</p>
+				<a href="/firma/{{firma.id}}" class="btn btn-primary mt-2">Szczegóły</a>
+			</div>
+		{% endfor %}
+		<div>
+			<a class="next btn btn-primary" href="{{app.request.uri}}&page={{query.page is defined ? query.page-1 : 0}}">Poprzedni</a>
+			<button class="btn btn-primary">{{query.page is defined ? query.page : 0}}</button>
+			<a class="next btn btn-primary" href="{{app.request.uri}}&page={{query.page is defined ? query.page+1 : 1}}">Następny</a>
+		</div>
+	</div>
+{% endblock %}

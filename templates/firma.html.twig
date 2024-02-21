@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+	<div class="firma mb-3">
+		<h3>{{content.firma[0].nazwa}}</h3>
+		{% if content.firma[0].wlasciciel %}
+			<h4>Właściciel</h4>
+			<p>Imie:
+				{{content.firma[0].wlasciciel.imie is defined? content.firma[0].wlasciciel.imie : 'brak' }}</p>
+			<p>Nazwisko:
+				{{content.firma[0].wlasciciel.nazwisko is defined? content.firma[0].wlasciciel.nazwisko : 'brak' }}</p>
+			<p>NIP:
+				{{content.firma[0].wlasciciel.nip is defined? content.firma[0].wlasciciel.nip : 'brak' }}</p>
+			<p>Identyfikator REGON:
+				{{content.firma[0].wlasciciel.regon is defined? content.firma[0].wlasciciel.regon : 'brak' }}</p>
+		{% endif %}
+		<h3>Numer telefonu</h3>
+		<p>{{content.firma[0].telefon is defined? content.firma[0].telefon : 'brak' }}</p>
+		<h3>Adres email</h3>
+		<p>{{content.firma[0].email is defined? content.firma[0].email : 'brak' }}</p>
+		<h3>Adres www</h3>
+		<p>{{content.firma[0].www is defined? content.firma[0].www : 'brak' }}</p>
+		{% if content.firma[0].adresDzialalnosci %}
+			<h4>Adres</h4>
+			<p>Kraj:
+				{{content.firma[0].adresDzialalnosci.kraj is defined? content.firma[0].adresDzialalnosci.kraj : 'brak' }}</p>
+			<p>Województwo:
+				{{content.firma[0].adresDzialalnosci.wojewodztwo is defined? content.firma[0].adresDzialalnosci.wojewodztwo : 'brak' }}</p>
+			<p>Powiat:
+				{{content.firma[0].adresDzialalnosci.powiat is defined? content.firma[0].adresDzialalnosci.powiat : 'brak' }}</p>
+			<p>Gmina:
+				{{content.firma[0].adresDzialalnosci.gmina is defined? content.firma[0].adresDzialalnosci.gmina : 'brak' }}</p>
+			<p>Miasto:
+				{{content.firma[0].adresDzialalnosci.miasto is defined? content.firma[0].adresDzialalnosci.miasto : 'brak' }}</p>
+			<p>Ulica:
+				{{content.firma[0].adresDzialalnosci.ulica is defined? content.firma[0].adresDzialalnosci.ulica : 'brak' }}</p>
+			<p>Budynek:
+				{{content.firma[0].adresDzialalnosci.budynek is defined? content.firma[0].adresDzialalnosci.budynek : 'brak' }}</p>
+		{% endif %}
+		<h3>Identyfikator rekordu</h3>
+		<p>{{content.firma[0].id}}</p>
+		<h3>Status działalności</h3>
+		<p>{{content.firma[0].status is defined? content.firma[0].status : 'brak' }}</p>
+		<h3>Data rozpoczęcia działalności</h3>
+		<p>{{content.firma[0].dataRozpoczecia is defined? content.firma[0].dataRozpoczecia : 'brak' }}</p>
+		<h3>Data zakończenia działalności</h3>
+		<p>{{content.firma[0].dataZakonczenia is defined? content.firma[0].dataZakonczenia : 'brak' }}</p>
+		<h3>Kod głównego przedmiotu działalności</h3>
+		<p>{{content.firma[0].pkdGlowny}}</p>
+		<h3>Lista kodów PKD</h3>
+		{% for item in content.firma[0].pkd %}
+			<p>{{item}}</p>
+		{% endfor %}
+	</div>
+{% endblock %}

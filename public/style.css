@@ -1,0 +1,13 @@
+body {
+    background-color: var(--bs-secondary-bg);
+}
+
+.firma {
+    /* border: 2px black solid; */
+    background-color: var(--bs-tertiary-bg);
+    padding: 1em;
+}
+
+.firma p {
+    margin-bottom: 0;
+}
