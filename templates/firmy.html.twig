@@ -1,12 +1,19 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}
+	Lista firm
+{% endblock %}
+
 {% block body %}
 
 	<h2>
 		Znaleziono
 		{{content.count}}
-		wyników ({{content.firmy|length}})
+		wyników (pokazuje
+		{{content.firmy|length}})
 	</h2>
+
+	<a href="{{path('eksport')}}?{{app.request.getQueryString}}" class="btn btn-primary">Pobierz</a>
 
 	<div id="firmy" class="m-2">
 		{% for firma in content.firmy %}

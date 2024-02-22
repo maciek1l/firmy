@@ -1,9 +1,16 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}
+	Wyszukiwanie
+{% endblock %}
+
 {% block body %}
 	<div class="container mt-2">
 		<h1>Wyszukiwanie</h1>
-		<form action="{{path('firmy')}}">
+		<form
+			action="{{path('firmy')}}">
+			{# <h1>Eksport</h1>
+											<form action="{{path('eksport')}}"> #}
 			<div class="mb-3">
 				<label for="imie" class="form-label">Imię</label>
 				<input type="text" class="form-control" id="imie" name="imie">
