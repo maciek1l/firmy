@@ -11,3 +11,7 @@ body {
 .firma p {
     margin-bottom: 0;
 }
+
+progress {
+    height: 24px;
+}

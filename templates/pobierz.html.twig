@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block javascripts %}
+	{% if procent<100 %}
+		<meta http-equiv="refresh" content="120">
+	{% endif %}
+{% endblock %}
+
+{% block body %}
+	<div class="container">
+		<h1>Eksportowanie...</h1>
+		<progress value="{{progres}}" max="{{pageCount}}"></progress>
+	<p>{{procent}}% ({{progres}}/{{pageCount}})</p>
+	<p>Pozostało ok.
+		{{(pageCount - progres)*0.075}}min</p>
+	{% if procent==100 %}
+		<a href="{{asset('eksport.xlsx')}}" class="btn btn-primary">Pobierz</a>
+		<a href="{{asset('all.json')}}" class="btn btn-secondary">Pobierz JSON</a>
+	{% endif %}
+</div>{% endblock %}
