@@ -2,8 +2,8 @@
 
 namespace App\Command;
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Entity\Firma;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,7 +19,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 )]
 class EksportFirmyCommand extends Command
 {
-    public function __construct(private HttpClientInterface $client)
+    public function __construct(private HttpClientInterface $client, private EntityManagerInterface $em)
     {
         parent::__construct();
     }
@@ -31,14 +31,18 @@ class EksportFirmyCommand extends Command
             ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description');
     }
 
-    protected function eksport(HttpClientInterface $client): int
+    protected function eksport(HttpClientInterface $client, EntityManagerInterface $em): int
     {
-        $all = [];
-        $pageCount = 1;
-
         $query = json_decode(file_get_contents('query.json'), true);
+        $progres = file_get_contents('progres.txt');
+        if ($progres != "completed" && $progres != "error") {
+            $progres = floor($progres / 25);
+        } else {
+            $progres = 0;
+        }
+        $pageCount = $progres + 1;
 
-        for ($i = 0; $i < $pageCount; $i++) {
+        for ($i = $progres; $i < $pageCount; $i++) {
             $query['page'] = $i;
             $response = $client->request(
                 'GET',
@@ -52,45 +56,96 @@ class EksportFirmyCommand extends Command
             );
             $statusCode = $response->getStatusCode();
             if ($statusCode != 200) {
+                echo "error: $statusCode\n";
                 if ($statusCode == 429) { // zbyt wiele zapytań
                     $i--;
+                    sleep(3);
                     continue;
                 } else {
-                    file_put_contents('progres.txt', 'error');
+                    file_put_contents('progres.txt', "error");
                     return $statusCode;
                 }
             }
 
             $content = $response->toArray();
 
-            $all = array_merge($all, $content['firmy']);
-            file_put_contents('all.json', json_encode($all));
+            file_put_contents('pageCount.txt', $content['count']);
 
-            file_put_contents('progres.txt', $i);
+            $count = 0;
+            $link = "";
+            foreach ($content['firmy'] as $key => $firmaaa) {
+                $id = $firmaaa['id'];
+                // pomiń jeżeli już w bazie
+                $exist = $em->getRepository(Firma::class)->findOneBy(['Identyfikator' => $id]);
+                if ($exist) {
+                    echo "pomijam: $id" . "\n";
+                    continue;
+                }
+                // generowanie linku do szczegółów 5 firm
+                $count++;
+                $link .= "ids=" . $id . "&";
+                if ($count % 5 && $key + 1 != count($content['firmy'])) continue;
+
+
+                $statusCode2 = 429;
+                while ($statusCode2 == 429) { // powtórz jeżeli przekroczono limit zapytań
+                    $start = microtime(true);
+                    $response2 = $client->request(
+                        'GET',
+                        "https://dane.biznes.gov.pl/api/ceidg/v2/firma?$link",
+                        [
+                            'headers' => [
+                                'Authorization' => TOKEN
+                            ],
+                        ]
+                    );
+                    $end = microtime(true);
+                    $timeToSpeep =  3600000 - ((1 - ($end - $start)) * 1000000);
+                    if ($timeToSpeep < 0) $timeToSpeep = 0;
+
+                    $statusCode2 = $response2->getStatusCode();
+                    if ($statusCode2 != 200) {
+                        echo "error: $statusCode2\n";
+                        if ($statusCode2 == 429) { // zbyt wiele zapytań
+                            usleep(3600000);
+                            continue;
+                        } else {
+                            file_put_contents('progres.txt', "error");
+                            return $statusCode2;
+                        }
+                    }
+                }
+
+                $content2 = $response2->toArray();
+                foreach ($content2['firma'] as $firma) {
+                    $newFirma = new Firma;
+                    $newFirma->setIdentyfikator($firma['id']);
+                    $newFirma->setNazwa($firma['nazwa']);
+                    $newFirma->setStatus($firma['status']);
+                    if (array_key_exists('pkdGlowny', $firma)) $newFirma->setPKD($firma['pkdGlowny']);
+                    if (array_key_exists('email', $firma)) $newFirma->setEmail($firma['email']);
+                    if (array_key_exists('telefon', $firma)) $newFirma->setTelefon($firma['telefon']);
+                    if (array_key_exists('wlasciciel', $firma)) {
+                        if (array_key_exists('nip', $firma['wlasciciel'])) $newFirma->setNIP($firma['wlasciciel']['nip']);
+                    }
+                    if (array_key_exists('adresDzialalnosci', $firma)) {
+                        if (array_key_exists('kod', $firma['adresDzialalnosci'])) $newFirma->setKodPocztowy($firma['adresDzialalnosci']['kod']);
+                    }
+                    $em->persist($newFirma);
+                }
+
+                $progres = $i * 25 + $key + 1;
+                echo "$i-$key $progres/{$content['count']}\n";
+                file_put_contents('progres.txt', $progres);
+                $link = "";
+                usleep($timeToSpeep);
+            }
+
+            $em->flush();
 
             $pageCount = ceil($content['count'] / 25);
-            file_put_contents('pageCount.txt', $pageCount);
             sleep(3);
         }
-
-        $spreadsheet = new Spreadsheet();
-        $activeWorksheet = $spreadsheet->getActiveSheet();
-        foreach ($all as $i => $v) {
-            $activeWorksheet->setCellValue('A' . $i + 1, $v['nazwa']);
-            $activeWorksheet->setCellValue('B' . $i + 1, $v['id']);
-            $activeWorksheet->setCellValue('C' . $i + 1, $v['status']);
-            $activeWorksheet->setCellValue('D' . $i + 1, isset($v['adresDzialalnosci']['wojewodztwo']) ? $v['adresDzialalnosci']['wojewodztwo'] : 'brak');
-            $activeWorksheet->setCellValue('E' . $i + 1, isset($v['adresDzialalnosci']['miasto']) ? $v['adresDzialalnosci']['miasto'] : 'brak');
-            $activeWorksheet->setCellValue('F' . $i + 1, $v['dataRozpoczecia']);
-        }
-        $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(64);
-        $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(40);
-        $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(14);
-        $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(20);
-        $spreadsheet->getActiveSheet()->getColumnDimension('E')->setWidth(16);
-        $spreadsheet->getActiveSheet()->getColumnDimension('F')->setWidth(12);
-        $writer = new Xlsx($spreadsheet);
-        $writer->save('eksport.xlsx');
 
         file_put_contents('progres.txt', 'completed');
         return 200;
@@ -101,8 +156,7 @@ class EksportFirmyCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $io->note("started");
-        $statusCode = $this->eksport($this->client);
-        $io->note("completed");
+        $statusCode = $this->eksport($this->client, $this->em);
 
         if ($statusCode == 200) {
             $io->success('sukces');

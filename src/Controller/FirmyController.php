@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\FirmaRepository;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -122,30 +123,33 @@ class FirmyController extends AbstractController
     }
 
     #[Route('/convert', name: 'convert')]
-    public function convert(): Response
+    public function convert(FirmaRepository $repo): Response
     {
-        $all = json_decode(file_get_contents('all.txt'), true);
+        $all = $repo->findAll();
 
         $spreadsheet = new Spreadsheet();
         $activeWorksheet = $spreadsheet->getActiveSheet();
         foreach ($all as $i => $v) {
-            $activeWorksheet->setCellValue('A' . $i + 1, $v['nazwa']);
-            $activeWorksheet->setCellValue('B' . $i + 1, $v['id']);
-            $activeWorksheet->setCellValue('C' . $i + 1, $v['status']);
-            $activeWorksheet->setCellValue('D' . $i + 1, isset($v['adresDzialalnosci']['wojewodztwo']) ? $v['adresDzialalnosci']['wojewodztwo'] : 'brak');
-            $activeWorksheet->setCellValue('E' . $i + 1, isset($v['adresDzialalnosci']['miasto']) ? $v['adresDzialalnosci']['miasto'] : 'brak');
-            $activeWorksheet->setCellValue('F' . $i + 1, $v['dataRozpoczecia']);
+            $activeWorksheet->setCellValue('A' . $i + 1, $v->getNazwa());
+            $activeWorksheet->setCellValue('B' . $i + 1, $v->getNIP());
+            $activeWorksheet->setCellValue('C' . $i + 1, $v->getStatus());
+            $activeWorksheet->setCellValue('D' . $i + 1, $v->getEmail());
+            $activeWorksheet->setCellValue('E' . $i + 1, $v->getTelefon());
+            $activeWorksheet->setCellValue('F' . $i + 1, $v->getKodPocztowy());
+            $activeWorksheet->setCellValue('G' . $i + 1, $v->getPKD());
         }
         $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(64);
-        $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(40);
+        $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(12);
         $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(14);
         $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(20);
-        $spreadsheet->getActiveSheet()->getColumnDimension('E')->setWidth(16);
-        $spreadsheet->getActiveSheet()->getColumnDimension('F')->setWidth(12);
+        $spreadsheet->getActiveSheet()->getColumnDimension('E')->setWidth(12);
+        $spreadsheet->getActiveSheet()->getColumnDimension('F')->setWidth(8);
+        $spreadsheet->getActiveSheet()->getColumnDimension('G')->setWidth(8);
         $writer = new Xlsx($spreadsheet);
         $writer->save('eksport.xlsx');
 
-        return new Response('<a href="/eksport.xlsx">pobierz</a>');
+        // return new Response('<a href="/eksport.xlsx">pobierz</a>');
+        return $this->file('eksport.xlsx');
     }
 
     #[Route('/firma/{id}', name: 'firma')]

@@ -1,0 +1,15 @@
+{
+    "name": "Firmy app",
+    "short_name": "Firmy",
+    "description": "Aplikacja wyświetlająca dane firm",
+    "start_url": "/",
+    "theme_color": "#eeffee",
+    "background_color": "#eeffee",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "icons/square.svg",
+            "sizes": "150x150"
+        }
+    ]
+}

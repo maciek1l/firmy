@@ -1,55 +1,61 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-	<div class="firma mb-3">
-		<h3>{{content.firma[0].nazwa}}</h3>
-		{% if content.firma[0].wlasciciel %}
-			<h4>Właściciel</h4>
-			<p>Imie:
-				{{content.firma[0].wlasciciel.imie is defined? content.firma[0].wlasciciel.imie : 'brak' }}</p>
-			<p>Nazwisko:
-				{{content.firma[0].wlasciciel.nazwisko is defined? content.firma[0].wlasciciel.nazwisko : 'brak' }}</p>
-			<p>NIP:
-				{{content.firma[0].wlasciciel.nip is defined? content.firma[0].wlasciciel.nip : 'brak' }}</p>
-			<p>Identyfikator REGON:
-				{{content.firma[0].wlasciciel.regon is defined? content.firma[0].wlasciciel.regon : 'brak' }}</p>
-		{% endif %}
-		<h3>Numer telefonu</h3>
-		<p>{{content.firma[0].telefon is defined? content.firma[0].telefon : 'brak' }}</p>
-		<h3>Adres email</h3>
-		<p>{{content.firma[0].email is defined? content.firma[0].email : 'brak' }}</p>
-		<h3>Adres www</h3>
-		<p>{{content.firma[0].www is defined? content.firma[0].www : 'brak' }}</p>
-		{% if content.firma[0].adresDzialalnosci %}
-			<h4>Adres</h4>
-			<p>Kraj:
-				{{content.firma[0].adresDzialalnosci.kraj is defined? content.firma[0].adresDzialalnosci.kraj : 'brak' }}</p>
-			<p>Województwo:
-				{{content.firma[0].adresDzialalnosci.wojewodztwo is defined? content.firma[0].adresDzialalnosci.wojewodztwo : 'brak' }}</p>
-			<p>Powiat:
-				{{content.firma[0].adresDzialalnosci.powiat is defined? content.firma[0].adresDzialalnosci.powiat : 'brak' }}</p>
-			<p>Gmina:
-				{{content.firma[0].adresDzialalnosci.gmina is defined? content.firma[0].adresDzialalnosci.gmina : 'brak' }}</p>
-			<p>Miasto:
-				{{content.firma[0].adresDzialalnosci.miasto is defined? content.firma[0].adresDzialalnosci.miasto : 'brak' }}</p>
-			<p>Ulica:
-				{{content.firma[0].adresDzialalnosci.ulica is defined? content.firma[0].adresDzialalnosci.ulica : 'brak' }}</p>
-			<p>Budynek:
-				{{content.firma[0].adresDzialalnosci.budynek is defined? content.firma[0].adresDzialalnosci.budynek : 'brak' }}</p>
-		{% endif %}
-		<h3>Identyfikator rekordu</h3>
-		<p>{{content.firma[0].id}}</p>
-		<h3>Status działalności</h3>
-		<p>{{content.firma[0].status is defined? content.firma[0].status : 'brak' }}</p>
-		<h3>Data rozpoczęcia działalności</h3>
-		<p>{{content.firma[0].dataRozpoczecia is defined? content.firma[0].dataRozpoczecia : 'brak' }}</p>
-		<h3>Data zakończenia działalności</h3>
-		<p>{{content.firma[0].dataZakonczenia is defined? content.firma[0].dataZakonczenia : 'brak' }}</p>
-		<h3>Kod głównego przedmiotu działalności</h3>
-		<p>{{content.firma[0].pkdGlowny}}</p>
-		<h3>Lista kodów PKD</h3>
-		{% for item in content.firma[0].pkd %}
-			<p>{{item}}</p>
-		{% endfor %}
-	</div>
+	{% for firma in content.firma %}
+		<div class="firma mb-3">
+			<h3>{{firma.nazwa}}</h3>
+			{% if firma.wlasciciel %}
+				<h4>Właściciel</h4>
+				<p>Imie:
+					{{firma.wlasciciel.imie is defined? firma.wlasciciel.imie : 'brak' }}</p>
+				<p>Nazwisko:
+					{{firma.wlasciciel.nazwisko is defined? firma.wlasciciel.nazwisko : 'brak' }}</p>
+				<p>NIP:
+					{{firma.wlasciciel.nip is defined? firma.wlasciciel.nip : 'brak' }}</p>
+				<p>Identyfikator REGON:
+					{{firma.wlasciciel.regon is defined? firma.wlasciciel.regon : 'brak' }}</p>
+			{% endif %}
+			<h3>Numer telefonu</h3>
+			<p>{{firma.telefon is defined? firma.telefon : 'brak' }}</p>
+			<h3>Adres email</h3>
+			<p>{{firma.email is defined? firma.email : 'brak' }}</p>
+			<h3>Adres www</h3>
+			<p>{{firma.www is defined? firma.www : 'brak' }}</p>
+			{% if firma.adresDzialalnosci %}
+				<h4>Adres</h4>
+				<p>Kraj:
+					{{firma.adresDzialalnosci.kraj is defined? firma.adresDzialalnosci.kraj : 'brak' }}</p>
+				<p>Województwo:
+					{{firma.adresDzialalnosci.wojewodztwo is defined? firma.adresDzialalnosci.wojewodztwo : 'brak' }}</p>
+				<p>Powiat:
+					{{firma.adresDzialalnosci.powiat is defined? firma.adresDzialalnosci.powiat : 'brak' }}</p>
+				<p>Gmina:
+					{{firma.adresDzialalnosci.gmina is defined? firma.adresDzialalnosci.gmina : 'brak' }}</p>
+				<p>Miasto:
+					{{firma.adresDzialalnosci.miasto is defined? firma.adresDzialalnosci.miasto : 'brak' }}</p>
+				<p>Ulica:
+					{{firma.adresDzialalnosci.ulica is defined? firma.adresDzialalnosci.ulica : 'brak' }}</p>
+				<p>Budynek:
+					{{firma.adresDzialalnosci.budynek is defined? firma.adresDzialalnosci.budynek : 'brak' }}</p>
+			{% endif %}
+			<h3>Identyfikator rekordu</h3>
+			<p>{{firma.id}}</p>
+			<h3>Status działalności</h3>
+			<p>{{firma.status is defined? firma.status : 'brak' }}</p>
+			<h3>Data rozpoczęcia działalności</h3>
+			<p>{{firma.dataRozpoczecia is defined? firma.dataRozpoczecia : 'brak' }}</p>
+			<h3>Data zakończenia działalności</h3>
+			<p>{{firma.dataZakonczenia is defined? firma.dataZakonczenia : 'brak' }}</p>
+			<h3>Kod głównego przedmiotu działalności</h3>
+			<p>{{firma.pkdGlowny is defined? firma.pkdGlowny : 'brak'}}</p>
+			<h3>Lista kodów PKD</h3>
+			{% if firma.pkd is defined %}
+				{% for item in firma.pkd %}
+					<p>{{item}}</p>
+				{% endfor %}
+			{% else %}
+				<p>brak</p>
+			{% endif %}
+		</div>
+	{% endfor %}
 {% endblock %}
