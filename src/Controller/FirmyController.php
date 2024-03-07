@@ -15,8 +15,6 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-define('TOKEN', 'Bearer eyJraWQiOiJjZWlkZyIsImFsZyI6IkhTNTEyIn0.eyJnaXZlbl9uYW1lIjoiT2xnYSIsInBlc2VsIjoiNjcwNjE1MDU3NjMiLCJpYXQiOjE2OTQ1OTc2MjQsImZhbWlseV9uYW1lIjoiV2l0Y3phayAiLCJjbGllbnRfaWQiOiJVU0VSLTY3MDYxNTA1NzYzLU9MR0EtV0lUQ1pBSyAifQ.0Znz2vzVJe96l3Eg62NCfwBDy3vOR_yx7EuPfFm_ghax2hanXhqnd89a-NMOHvI1Mq6fvxaQFdak1-bNwywR2A');
-
 class FirmyController extends AbstractController
 {
     #[Route('/', name: 'index')]

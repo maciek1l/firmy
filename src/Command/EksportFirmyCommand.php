@@ -13,6 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+define('TOKEN', 'Bearer eyJraWQiOiJjZWlkZyIsImFsZyI6IkhTNTEyIn0.eyJnaXZlbl9uYW1lIjoiT2xnYSIsInBlc2VsIjoiNjcwNjE1MDU3NjMiLCJpYXQiOjE2OTQ1OTc2MjQsImZhbWlseV9uYW1lIjoiV2l0Y3phayAiLCJjbGllbnRfaWQiOiJVU0VSLTY3MDYxNTA1NzYzLU9MR0EtV0lUQ1pBSyAifQ.0Znz2vzVJe96l3Eg62NCfwBDy3vOR_yx7EuPfFm_ghax2hanXhqnd89a-NMOHvI1Mq6fvxaQFdak1-bNwywR2A');
+
 #[AsCommand(
     name: 'app:eksport-firmy',
     description: 'Add a short description for your command',
@@ -33,8 +35,8 @@ class EksportFirmyCommand extends Command
 
     protected function eksport(HttpClientInterface $client, EntityManagerInterface $em): int
     {
-        $query = json_decode(file_get_contents('query.json'), true);
-        $progres = file_get_contents('progres.txt');
+        $query = json_decode(file_get_contents('public/query.json'), true);
+        $progres = file_get_contents('public/progres.txt');
         if ($progres != "completed" && $progres != "error") {
             $progres = floor($progres / 25);
         } else {
@@ -59,17 +61,17 @@ class EksportFirmyCommand extends Command
                 echo "error: $statusCode\n";
                 if ($statusCode == 429) { // zbyt wiele zapytań
                     $i--;
-                    sleep(3);
+                    usleep(3600000);
                     continue;
                 } else {
-                    file_put_contents('progres.txt', "error");
+                    file_put_contents('public/progres.txt', "error");
                     return $statusCode;
                 }
             }
 
             $content = $response->toArray();
 
-            file_put_contents('pageCount.txt', $content['count']);
+            file_put_contents('public/pageCount.txt', $content['count']);
 
             $count = 0;
             $link = "";
@@ -90,6 +92,7 @@ class EksportFirmyCommand extends Command
                 $statusCode2 = 429;
                 while ($statusCode2 == 429) { // powtórz jeżeli przekroczono limit zapytań
                     $start = microtime(true);
+                    try {
                     $response2 = $client->request(
                         'GET',
                         "https://dane.biznes.gov.pl/api/ceidg/v2/firma?$link",
@@ -99,6 +102,11 @@ class EksportFirmyCommand extends Command
                             ],
                         ]
                     );
+                    } catch(Exception $e) {
+                        echo "error:" . $e->getMessage();
+                        usleep(3600000);
+                        continue;
+                    }
                     $end = microtime(true);
                     $timeToSpeep =  3600000 - ((1 - ($end - $start)) * 1000000);
                     if ($timeToSpeep < 0) $timeToSpeep = 0;
@@ -110,7 +118,7 @@ class EksportFirmyCommand extends Command
                             usleep(3600000);
                             continue;
                         } else {
-                            file_put_contents('progres.txt', "error");
+                            file_put_contents('public/progres.txt', "error");
                             return $statusCode2;
                         }
                     }
@@ -136,18 +144,19 @@ class EksportFirmyCommand extends Command
 
                 $progres = $i * 25 + $key + 1;
                 echo "$i-$key $progres/{$content['count']}\n";
-                file_put_contents('progres.txt', $progres);
+                file_put_contents('public/progres.txt', $progres);
                 $link = "";
                 usleep($timeToSpeep);
             }
 
             $em->flush();
+            $em->clear();
 
             $pageCount = ceil($content['count'] / 25);
-            sleep(3);
+            usleep(3600000);
         }
 
-        file_put_contents('progres.txt', 'completed');
+        file_put_contents('public/progres.txt', 'completed');
         return 200;
     }
 
